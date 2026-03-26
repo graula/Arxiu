@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Arxiu i documentació</title>
+<style>
+body{font-family:Arial;background:#f4f7fb;text-align:center}
+.container{display:flex;justify-content:space-around;gap:20px}
+.column{width:40%;background:white;padding:10px;border-radius:10px}
+.dropzone{min-height:40px;border:2px dashed #ccc;margin:5px;border-radius:8px}
+.draggable{padding:8px;margin:5px;background:#dbeafe;border-radius:8px;cursor:grab}
+.order-slot{width:60%;border:2px dashed #aaa;margin:5px auto;padding:8px;display:flex;gap:10px}
+.letter-col{width:120px;min-height:120px;border:2px dashed #aaa;border-radius:8px;padding:5px}
+.letters{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.num-col,.num3-col{width:120px;min-height:120px;border:2px dashed #888;border-radius:8px;padding:5px}
+.numbers{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+button{margin-top:20px;padding:10px}
+.grid6{display:grid;grid-template-columns:repeat(5,120px);gap:10px;justify-content:center;margin-top:20px}
+.cell6{border:2px dashed #555;padding:5px;min-height:100px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<h1>1. Clasifica los seres vivos</h1>
+<div id="items"></div>
+<div class="container">
+<div class="column" id="vertebrados"><h2>Vertebrados</h2></div>
+<div class="column" id="invertebrados"><h2>Invertebrados</h2></div>
+</div>
+<button onclick="check1()">Corregir</button>
+<div id="r1"></div>
+
+<div id="game2" style="display:none">
+<h1>2. Orden alfabético</h1>
+<div id="g2"></div>
+<button onclick="check2()">Corregir</button>
+<div id="r2"></div>
+</div>
+
+<div id="game3" style="display:none">
+<h1>3. Clasificar por letra</h1>
+<div id="g3items"></div>
+<div class="letters" id="letters"></div>
+<button onclick="check3()">Corregir</button>
+<div id="r3"></div>
+</div>
+
+<div id="game4" style="display:none">
+<h1>4. Clasificar por 2 últimas cifras</h1>
+<div id="g4items"></div>
+<div class="numbers" id="numCols"></div>
+<button onclick="check4()">Corregir</button>
+<div id="r4"></div>
+</div>
+
+<div id="game5" style="display:none">
+<h1>5. Clasificar por 3 últimas cifras</h1>
+<div id="g5items"></div>
+<div class="numbers" id="num3Cols"></div>
+<button onclick="check5()">Corregir</button>
+<div id="r5"></div>
+</div>
+
+<div id="game6" style="display:none">
+<h1>6. Clasificación avanzada</h1>
+<div id="g6items"></div>
+<div class="grid6" id="grid6"></div>
+<button onclick="check6()">Corregir</button>
+<div id="r6"></div>
+</div>
+
+<script>
+const animales=["tauró","llop","elefant","faig","pop","bacteri","protozou","mosca","garrofera","aranya","sardina","virus","ratolí","pardal","romaní","granota","papallona","sargantana","gavina","argelaga","home","gat","molsa","formiga","gamba"];
+const vertebrados=["tauró","llop","elefant","sardina","ratolí","pardal","granota","sargantana","gavina","home","gat"];
+
+const nombres=["Álvaro de Luna","Joaquín Díaz y Pérez","Juan Beistegui Gómez","Miguel de Cervantes Saavedra","Àngel de Segarra i Duna","Alberto Díaz-Plaja","Anna Campillo Palacios","Joaquín Díaz i Pérez","Pedro Angulo Suárez","Fausto La-Gasca","Pedro de Las Palas González","Robert de la Peña Sauna","Sonia Lasa Juntas","Laura Escanes","Agustín de La-Rosa Toro","Àngel del Río Bravo"];
+
+const nombres3=["Javier Leonardo Arredondo Ovalle","Irati Mayoral Papasseit","Ulrike Uebbert González","Paul Auster","Jane Austen","David Cases Romaní 27/08/2001","Roberto La Fuente Guerra","Núria Castells i Oliva","Nico Castillo Fernández","Inmad Al-din","Sunita Guha - Thakurta","Adrien Le Brun","Jean -Luc Tessier","David Cases Romaní 27/08/2002","Emma Stewart-Dawson Smith","David del Toro","Oriol Casajuana","Luca de Cuartana Cutrina","Blai de Cuartana Reixach","Georgia Freeman Francés","Odei Mayoral Papasseit","Fèlix de la Fuente","Cayetana Fitz-James Stuart"];
+
+const numeros=["8757103","456202","9037878","647281","6471203","67485481","51148702","14751281","26512599","1235182","62521278","612346199","12512703","24512403","12965702","46545199","26451200","128745102"];
+
+function allow(e){e.preventDefault()}
+function drag(e){e.dataTransfer.setData("text",e.target.id)}
+
+function drop1(e){e.preventDefault();const d=document.getElementById(e.dataTransfer.getData("text"));if(e.target.classList.contains("dropzone")&&e.target.children.length===0)e.target.appendChild(d)}
+function drop2(e){e.preventDefault();let t=e.target.closest(".order-slot");if(!t)return;if(t.children.length<2)t.appendChild(document.getElementById(e.dataTransfer.getData("text")))}
+function drop3(e){e.preventDefault();let t=e.target.closest(".letter-col");if(!t)return;t.appendChild(document.getElementById(e.dataTransfer.getData("text")))}
+function drop4(e){e.preventDefault();let t=e.target.closest(".num-col");if(!t)return;t.appendChild(document.getElementById(e.dataTransfer.getData("text")))}
+function drop5(e){e.preventDefault();let t=e.target.closest(".num3-col");if(!t)return;t.appendChild(document.getElementById(e.dataTransfer.getData("text")))}
+
+// GAME1
+function init1(){const cont=document.getElementById("items");animales.sort(()=>Math.random()-0.5);
+animales.forEach((a,i)=>{let d=document.createElement("div");d.className="draggable";d.id="a"+i;d.draggable=true;d.ondragstart=drag;d.innerText=a;cont.appendChild(d)});
+["vertebrados","invertebrados"].forEach(id=>{let c=document.getElementById(id);for(let i=0;i<animales.length;i++){let z=document.createElement("div");z.className="dropzone";z.ondrop=drop1;z.ondragover=allow;c.appendChild(z)}})}
+
+function check1(){let ok=0,tot=0,fail="";
+document.querySelectorAll(".draggable").forEach(el=>{
+if(!el.parentElement.classList.contains("dropzone"))return;
+let p=el.parentElement.parentElement.id;let n=el.innerText;tot++;
+if(p==="vertebrados"&&vertebrados.includes(n))ok++;else if(p==="invertebrados"&&!vertebrados.includes(n))ok++;else fail+=n+" ❌\n";
+});
+document.getElementById("r1").innerText=`${ok}/${tot}\n${fail}`;
+document.getElementById("game2").style.display="block";init2();}
+
+// GAME2
+function normalize(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(" ")[0]}
+function init2(){const c=document.getElementById("g2");c.innerHTML="";let sh=[...nombres].sort(()=>Math.random()-0.5);
+sh.forEach((n,i)=>{let d=document.createElement("div");d.className="draggable";d.id="n"+i;d.draggable=true;d.ondragstart=drag;d.innerText=n;c.appendChild(d)});
+for(let i=0;i<nombres.length;i++){let s=document.createElement("div");s.className="order-slot";s.ondrop=drop2;s.ondragover=allow;let num=document.createElement("span");num.innerText=(i+1)+".";s.appendChild(num);c.appendChild(s)}}
+
+function check2(){const slots=document.querySelectorAll(".order-slot");let placed=[];slots.forEach(s=>{if(s.children[1])placed.push(s.children[1].innerText)});
+let correct=[...nombres].sort((a,b)=>normalize(a).localeCompare(normalize(b)));let ok=0,fail="";
+placed.forEach((n,i)=>{if(n===correct[i])ok++;else fail+=n+" ❌\n"});
+document.getElementById("r2").innerText=`${ok}/${nombres.length}\n${fail}`;
+document.getElementById("game3").style.display="block";init3();}
+
+// GAME3
+function init3(){const items=document.getElementById("g3items");items.innerHTML="";let sh=[...nombres3].sort(()=>Math.random()-0.5);
+sh.forEach((n,i)=>{let d=document.createElement("div");d.className="draggable";d.id="x"+i;d.draggable=true;d.ondragstart=drag;d.innerText=n;items.appendChild(d)});
+const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");const cont=document.getElementById("letters");cont.innerHTML="";
+letters.forEach(l=>{let col=document.createElement("div");col.className="letter-col";col.ondrop=drop3;col.ondragover=allow;let t=document.createElement("strong");t.innerText=l;col.appendChild(t);cont.appendChild(col)});
+}
+function firstLetter(s){return s.trim()[0].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function check3(){let ok=0,tot=0,fail="";
+document.querySelectorAll(".letter-col").forEach(col=>{let letter=col.children[0].innerText;for(let i=1;i<col.children.length;i++){let name=col.children[i].innerText;let fl=firstLetter(name);tot++;if(fl===letter)ok++;else fail+=name+" → " + letter +" ❌\n";}});
+document.getElementById("r3").innerText=`${ok}/${tot}\n${fail}`;
+document.getElementById("game4").style.display="block";init4();}
+
+// GAME4
+function init4(){const items=document.getElementById("g4items");items.innerHTML="";let sh=[...numeros].sort(()=>Math.random()-0.5);
+sh.forEach((n,i)=>{let d=document.createElement("div");d.className="draggable";d.id="z"+i;d.draggable=true;d.ondragstart=drag;d.innerText=n;items.appendChild(d)});
+
+const cont=document.getElementById("numCols");cont.innerHTML="";
+for(let i=0;i<10;i++){
+let start=i*10; let end=start+10;
+let col=document.createElement("div");col.className="num-col";col.ondrop=drop4;col.ondragover=allow;
+let t=document.createElement("strong");
+t.innerText=`${String(start).padStart(2,'0')}-${String(end).padStart(2,'0')}`;
+col.appendChild(t);
+cont.appendChild(col);
+}
+}
+
+function lastTwo(n){return parseInt(n.slice(-2));}
+
+function check4(){let ok=0,tot=0,fail="";
+document.querySelectorAll(".num-col").forEach(col=>{
+let range=col.children[0].innerText.split('-');
+let start=parseInt(range[0]); let end=parseInt(range[1]);
+for(let i=1;i<col.children.length;i++){
+let num=col.children[i].innerText;
+let val=lastTwo(num);
+tot++;
+if(val>=start && val<=end) ok++;
+else fail+=num+" → " + range.join('-') +" ❌\n";
+}
+});
+document.getElementById("r4").innerText=`${ok}/${tot}\n${fail}`;
+document.getElementById("game5").style.display="block";init5();
+}
+
+// GAME5
+function init5(){
+const items=document.getElementById("g5items");items.innerHTML="";
+let sh=[...numeros].sort(()=>Math.random()-0.5);
+
+sh.forEach((n,i)=>{
+let d=document.createElement("div");
+d.className="draggable";
+d.id="y"+i;
+d.draggable=true;
+d.ondragstart=drag;
+d.innerText=n;
+items.appendChild(d);
+});
+
+const cont=document.getElementById("num3Cols");cont.innerHTML="";
+for(let i=0;i<10;i++){
+let start=i*100; let end=start+100;
+let col=document.createElement("div");col.className="num3-col";col.ondrop=drop5;col.ondragover=allow;
+
+let t=document.createElement("strong");
+t.innerText=`${String(start).padStart(3,'0')}-${String(end).padStart(3,'0')}`;
+col.appendChild(t);
+cont.appendChild(col);
+}
+}
+
+function lastThree(n){return parseInt(n.slice(-3));}
+
+function check5(){let ok=0,tot=0,fail="";
+document.querySelectorAll(".num3-col").forEach(col=>{
+let range=col.children[0].innerText.split('-');
+let start=parseInt(range[0]); let end=parseInt(range[1]);
+for(let i=1;i<col.children.length;i++){
+let num=col.children[i].innerText;
+let val=lastThree(num);
+tot++;
+if(val>=start && val<=end) ok++;
+else fail+=num+" → " + range.join('-') +" ❌\n";
+}
+});
+document.getElementById("r5").innerText=`${ok}/${tot}\n${fail}`;
+document.getElementById("game6").style.display="block";
+init6();
+}
+
+// ================= GAME 6 =================
+const numeros6=["164400","439802","213000","300402","117401","310400","192503","192500","091303","307603","217802","096503","052800","134103","200303","333001","166303","129800","177103","512802","173701"];
+
+function drop6(e){
+e.preventDefault();
+let t=e.target.closest(".cell6");
+if(!t)return;
+t.appendChild(document.getElementById(e.dataTransfer.getData("text")));
+}
+
+function init6(){
+const items=document.getElementById("g6items");
+items.innerHTML="";
+let sh=[...numeros6].sort(()=>Math.random()-0.5);
+
+sh.forEach((n,i)=>{
+let d=document.createElement("div");
+d.className="draggable";
+d.id="w"+i;
+d.draggable=true;
+d.ondragstart=drag;
+d.innerText=n;
+items.appendChild(d);
+});
+
+const letras=["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T"];
+const grid=document.getElementById("grid6");
+grid.innerHTML="";
+
+for(let fila=0;fila<4;fila++){
+for(let col=0;col<5;col++){
+
+let idx=fila*5+col;
+let base=col*20;
+let suf=fila;
+
+let cell=document.createElement("div");
+cell.className="cell6";
+cell.ondrop=drop6;
+cell.ondragover=allow;
+
+let t=document.createElement("strong");
+t.innerText=`${letras[idx]} (${String(base).padStart(2,'0')}.0${suf})`;
+
+cell.appendChild(t);
+grid.appendChild(cell);
+}
+}
+}
+
+function check6(){
+let ok=0,tot=0,fail="";
+
+document.querySelectorAll(".cell6").forEach(cell=>{
+let txt=cell.children[0].innerText;
+let m = txt.match(/(\d{2})\.0(\d)/);
+
+let base=parseInt(m[1]);
+let suf=parseInt(m[2]);
+
+for(let i=1;i<cell.children.length;i++){
+let num=cell.children[i].innerText;
+
+// últimos 4 dígitos
+let last=num.slice(-4);
+let val=parseInt(last.slice(0,2));
+let sufN=parseInt(last.slice(2));
+
+tot++;
+
+if(val>=base && val<base+20 && sufN===suf){
+ok++;
+}else{
+fail+=num+" ❌\n";
+}
+}
+});
+
+document.getElementById("r6").innerText=`${ok}/${tot}\n${fail}`;
+}
+
+init1();
+</script>
+</body>
+</html>
